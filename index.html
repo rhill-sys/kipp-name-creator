@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KIPP School Name Generator</title>
+<style>
+  :root {
+    --kipp-blue: #003C71;
+    --kipp-yellow: #FFC72C;
+    --kipp-yellow-dark: #E0A800;
+    --kipp-deep: #001F3F;
+    --reel-bg: #fffaf0;
+    --shadow: rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at center, #1a3a5f 0%, var(--kipp-deep) 70%, #000 100%);
+    color: white;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 60px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-family: "Georgia", serif;
+    font-size: 2.5rem;
+    color: var(--kipp-yellow);
+    text-shadow: 0 2px 12px rgba(255, 199, 44, 0.4), 0 4px 0 #000;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .subtitle {
+    color: #cce0f5;
+    font-size: 1rem;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+    opacity: 0.85;
+    text-align: center;
+  }
+
+  .machine {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    max-width: 100%;
+  }
+
+  .cabinet {
+    background: linear-gradient(180deg, #c41e3a 0%, #8b0000 50%, #5a0000 100%);
+    border: 6px solid #2a0000;
+    border-radius: 30px 30px 20px 20px;
+    padding: 28px 36px 32px;
+    box-shadow:
+      0 20px 60px var(--shadow),
+      inset 0 4px 12px rgba(255,255,255,0.15),
+      inset 0 -8px 24px rgba(0,0,0,0.4);
+    position: relative;
+  }
+
+  .cabinet::before {
+    content: "";
+    position: absolute;
+    top: -4px; left: -4px; right: -4px; height: 30px;
+    background: linear-gradient(90deg, var(--kipp-yellow), #fff5b8, var(--kipp-yellow));
+    border-radius: 30px 30px 0 0;
+    border: 2px solid #2a0000;
+  }
+
+  .cabinet::after {
+    content: "★ ★ ★";
+    position: absolute;
+    top: -2px; left: 0; right: 0;
+    text-align: center;
+    color: #8b0000;
+    font-size: 1.1rem;
+    letter-spacing: 24px;
+    padding-left: 24px;
+    z-index: 1;
+  }
+
+  .display-wrapper {
+    margin-top: 24px;
+    background: var(--kipp-deep);
+    border: 5px solid var(--kipp-yellow);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow:
+      inset 0 0 20px rgba(0,0,0,0.7),
+      0 0 0 3px #2a0000,
+      0 0 30px rgba(255, 199, 44, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .kipp-label {
+    font-family: "Georgia", serif;
+    font-weight: 900;
+    font-size: 3.2rem;
+    color: var(--kipp-yellow);
+    text-shadow: 0 2px 0 #000, 0 0 12px rgba(255, 199, 44, 0.6);
+    letter-spacing: 2px;
+    padding: 0 8px;
+  }
+
+  .reel {
+    background: var(--reel-bg);
+    border-radius: 6px;
+    width: 320px;
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 4px 14px rgba(0,0,0,0.5);
+  }
+
+  .reel::before, .reel::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 18px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .reel::before {
+    top: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent);
+  }
+  .reel::after {
+    bottom: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.4), transparent);
+  }
+
+  .reel-strip {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    will-change: transform;
+  }
+
+  .reel-item {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Georgia", serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--kipp-blue);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
+
+  .marquee-lights {
+    position: absolute;
+    top: -20px;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+  }
+
+  .marquee-lights .bulb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff, var(--kipp-yellow) 60%, #b8860b);
+    box-shadow: 0 0 10px var(--kipp-yellow), 0 0 4px #fff;
+  }
+
+  .bulb.on { animation: blink 1.2s infinite; }
+  .bulb:nth-child(odd).on { animation-delay: 0.6s; }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.35; }
+  }
+
+  .controls {
+    margin-top: 24px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pull-btn {
+    background: linear-gradient(180deg, var(--kipp-yellow) 0%, var(--kipp-yellow-dark) 100%);
+    color: #2a0000;
+    font-weight: 900;
+    font-size: 1.1rem;
+    border: 3px solid #2a0000;
+    border-radius: 10px;
+    padding: 12px 28px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #2a0000, 0 8px 16px rgba(0,0,0,0.4);
+    transition: all 0.1s;
+  }
+
+  .pull-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2a0000, 0 10px 20px rgba(0,0,0,0.5);
+  }
+
+  .pull-btn:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2a0000, 0 4px 8px rgba(0,0,0,0.4);
+  }
+
+  .pull-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .save-btn {
+    background: transparent;
+    color: var(--kipp-yellow);
+    border: 2px solid var(--kipp-yellow);
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+
+  .save-btn:hover {
+    background: var(--kipp-yellow);
+    color: var(--kipp-deep);
+  }
+
+  .save-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* LEVER */
+  .lever-housing {
+    align-self: stretch;
+    width: 60px;
+    background: linear-gradient(180deg, #5a0000 0%, #2a0000 100%);
+    border: 4px solid #1a0000;
+    border-radius: 12px;
+    margin-top: 24px;
+    margin-bottom: 0;
+    position: relative;
+    box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+  }
+
+  .lever-pivot {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #888, #333);
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 0 2px #1a0000, inset 0 -2px 2px rgba(0,0,0,0.6);
+  }
+
+  .lever {
+    position: absolute;
+    top: 38px;
+    left: 50%;
+    transform-origin: 50% 0%;
+    transform: translateX(-50%) rotate(0deg);
+    width: 14px;
+    height: 180px;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+
+  .lever.pulled {
+    transform: translateX(-50%) rotate(110deg);
+    transition: transform 0.25s cubic-bezier(0.36, 0, 0.66, -0.56);
+  }
+
+  .lever-shaft {
+    width: 14px;
+    height: 140px;
+    background: linear-gradient(90deg, #888 0%, #ddd 40%, #fff 50%, #ddd 60%, #888 100%);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+
+  .lever-ball {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b 0%, #c41e3a 60%, #6a0000 100%);
+    margin-left: -11px;
+    margin-top: -4px;
+    box-shadow:
+      0 4px 12px rgba(0,0,0,0.6),
+      inset -4px -4px 8px rgba(0,0,0,0.4),
+      inset 4px 4px 8px rgba(255,255,255,0.3);
+    border: 2px solid #2a0000;
+  }
+
+  .footer-text {
+    margin-top: 32px;
+    color: #99b3cc;
+    font-size: 0.85rem;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.5;
+  }
+
+  .saved-section {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .saved-section h2 {
+    color: var(--kipp-yellow);
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .saved-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .saved-chip {
+    background: rgba(255, 199, 44, 0.12);
+    color: var(--kipp-yellow);
+    border: 1px solid rgba(255, 199, 44, 0.4);
+    border-radius: 20px;
+    padding: 6px 14px 6px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .saved-chip button {
+    background: none;
+    border: none;
+    color: var(--kipp-yellow);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    opacity: 0.6;
+    padding: 0;
+  }
+  .saved-chip button:hover { opacity: 1; }
+
+  .empty-saved {
+    color: #6a8aa8;
+    font-style: italic;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    top: -10px;
+    width: 10px;
+    height: 10px;
+    z-index: 999;
+    animation: fall 3s linear forwards;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 700px) {
+    h1 { font-size: 1.8rem; }
+    .cabinet { padding: 20px 18px 22px; }
+    .kipp-label { font-size: 2.2rem; }
+    .reel { width: 200px; height: 70px; }
+    .reel-item { font-size: 1.6rem; height: 70px; letter-spacing: 2px; }
+    .lever-housing { width: 44px; }
+    .lever-ball { width: 28px; height: 28px; }
+    .marquee-lights .bulb { width: 10px; height: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>KIPP School Name Generator</h1>
+<p class="subtitle">PULL THE LEVER · NAME YOUR NEXT SCHOOL</p>
+
+<div class="machine">
+  <div class="cabinet">
+    <div class="marquee-lights" id="lights"></div>
+    <div class="display-wrapper">
+      <div class="kipp-label">KIPP</div>
+      <div class="reel">
+        <div class="reel-strip" id="strip"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="pull-btn" id="pullBtn">SPIN</button>
+      <button class="save-btn" id="saveBtn" disabled>+ Save</button>
+    </div>
+  </div>
+
+  <div class="lever-housing">
+    <div class="lever-pivot"></div>
+    <div class="lever" id="lever">
+      <div class="lever-shaft"></div>
+      <div class="lever-ball"></div>
+    </div>
+  </div>
+</div>
+
+<div class="saved-section">
+  <h2>Saved Names</h2>
+  <div class="saved-list" id="savedList">
+    <div class="empty-saved">No names saved yet. Spin and save your favorites.</div>
+  </div>
+</div>
+
+<p class="footer-text">
+  Built for KIPP. Click SPIN or pull the lever. Names lean toward single, evocative words — the kind that look good carved in stone over a school door.
+</p>
+
+<script>
+  // Curated name pool — meaningful, aspirational, school-worthy
+  const NAMES = [
+    "RISE", "SUMMIT", "FORGE", "BEACON", "HORIZON", "SPARK",
+    "VOYAGE", "BRIDGE", "VANGUARD", "ASPIRE", "EXCEL", "EMPOWER",
+    "UNITY", "PULSE", "LIBERTY", "DISCOVERY", "PHOENIX", "COMPASS",
+    "PIONEER", "LEGACY", "ACHIEVE", "TRIUMPH", "ELEVATE", "INSPIRE",
+    "HEARTBEAT", "FRONTIER", "FOUNDATION", "BELIEVE", "VISION",
+    "BLOOM", "FLOURISH", "THRIVE", "IGNITE", "EMBER", "JOURNEY",
+    "PATHWAY", "RESONANCE", "HARMONY", "QUEST", "CRUCIBLE",
+    "FOUNDRY", "NORTH STAR", "LIGHTHOUSE", "APEX", "PEAK",
+    "ASCEND", "TEAM", "FORCE", "CORE", "EDGE", "BOLD", "GRIT",
+    "HOPE", "SOAR", "REACH", "BUILD", "ANCHOR", "KEYSTONE",
+    "CATALYST", "MOMENTUM", "TRUE NORTH", "EVEREST", "ODYSSEY",
+    "ENDEAVOR", "ORIGIN", "GENESIS", "VERTEX", "ZENITH",
+    "MERIDIAN", "TRAILBLAZE", "KINDRED", "ACADEMY", "SCHOLAR",
+    "ASCENT", "BREAKTHROUGH", "PERSEVERE", "COURAGE", "WONDER",
+    "CULTIVATE"
+  ];
+
+  const ITEM_H = 80;
+  const strip = document.getElementById("strip");
+  const pullBtn = document.getElementById("pullBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const lever = document.getElementById("lever");
+  const lights = document.getElementById("lights");
+  const savedList = document.getElementById("savedList");
+
+  // Marquee lights
+  for (let i = 0; i < 14; i++) {
+    const b = document.createElement("div");
+    b.className = "bulb on";
+    lights.appendChild(b);
+  }
+
+  // Build reel strip with shuffled names, repeated for a long spinnable strip
+  function buildStrip() {
+    strip.innerHTML = "";
+    // Place enough items for a long spin
+    const padded = [];
+    for (let r = 0; r < 6; r++) {
+      const shuffled = [...NAMES].sort(() => Math.random() - 0.5);
+      padded.push(...shuffled);
+    }
+    padded.forEach(n => {
+      const d = document.createElement("div");
+      d.className = "reel-item";
+      d.textContent = n;
+      strip.appendChild(d);
+    });
+    return padded;
+  }
+
+  let stripNames = buildStrip();
+  let currentName = null;
+  let spinning = false;
+
+  // Set initial showing position to first item
+  strip.style.transform = "translateY(0px)";
+  currentName = stripNames[0];
+
+  function spin() {
+    if (spinning) return;
+    spinning = true;
+    saveBtn.disabled = true;
+    pullBtn.disabled = true;
+
+    // Animate lever
+    lever.classList.add("pulled");
+    setTimeout(() => lever.classList.remove("pulled"), 700);
+
+    // Rebuild strip for randomness each time
+    stripNames = buildStrip();
+
+    // Pick landing index well into the strip
+    const landingIndex = 60 + Math.floor(Math.random() * (stripNames.length - 80));
+    const finalY = -landingIndex * ITEM_H;
+
+    // Reset to top fast
+    strip.style.transition = "none";
+    strip.style.transform = "translateY(0px)";
+    void strip.offsetHeight; // reflow
+
+    // Animate down with deceleration
+    const duration = 3200 + Math.random() * 800;
+    strip.style.transition = `transform ${duration}ms cubic-bezier(0.17, 0.67, 0.16, 1)`;
+    strip.style.transform = `translateY(${finalY}px)`;
+
+    setTimeout(() => {
+      currentName = stripNames[landingIndex];
+      spinning = false;
+      pullBtn.disabled = false;
+      saveBtn.disabled = false;
+      celebrate();
+    }, duration + 50);
+  }
+
+  function celebrate() {
+    const colors = ["#FFC72C", "#003C71", "#c41e3a", "#ffffff", "#88c0ff"];
+    for (let i = 0; i < 40; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (2 + Math.random() * 2) + "s";
+      c.style.animationDelay = (Math.random() * 0.5) + "s";
+      c.style.width = c.style.height = (6 + Math.random() * 8) + "px";
+      if (Math.random() > 0.5) c.style.borderRadius = "50%";
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  // Saved names (in-memory only)
+  let saved = [];
+
+  function renderSaved() {
+    if (saved.length === 0) {
+      savedList.innerHTML = '<div class="empty-saved">No names saved yet. Spin and save your favorites.</div>';
+      return;
+    }
+    savedList.innerHTML = "";
+    saved.forEach((name, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "saved-chip";
+      chip.innerHTML = `KIPP ${name} <button title="Remove">×</button>`;
+      chip.querySelector("button").onclick = () => {
+        saved.splice(idx, 1);
+        renderSaved();
+      };
+      savedList.appendChild(chip);
+    });
+  }
+
+  pullBtn.addEventListener("click", spin);
+  lever.addEventListener("click", spin);
+
+  saveBtn.addEventListener("click", () => {
+    if (!currentName || saved.includes(currentName)) return;
+    saved.unshift(currentName);
+    renderSaved();
+  });
+
+  // Spacebar pulls the lever
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !spinning) {
+      e.preventDefault();
+      spin();
+    }
+  });
+</script>
+
+</body>
+</html>
